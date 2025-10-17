@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "887736652327",
+    "project_id": "yappers---chatting-app",
+    "storage_bucket": "yappers---chatting-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:887736652327:android:02dc1f3a5fd0dc8f657402",
+        "android_client_info": {
+          "package_name": "com.example.yapper"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB5yL50RNo54ztmjC5ttwyhuusXggKkrc0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
