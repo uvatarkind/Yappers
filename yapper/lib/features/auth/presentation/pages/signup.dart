@@ -3,10 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
-import '../pages/chat_history.dart';
+import '../../../chat/presentation/pages/chat_history.dart';
 
 // 1. Converted to a StatefulWidget
 class SignupScreen extends StatefulWidget {
+  const SignupScreen({super.key});
+
   @override
   _SignupScreenState createState() => _SignupScreenState();
 }
@@ -163,7 +165,6 @@ class _SignupScreenState extends State<SignupScreen> {
                               );
                         }
                       },
-                      child: const Text('Sign Up'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.purple[700],
                         padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -171,6 +172,7 @@ class _SignupScreenState extends State<SignupScreen> {
                           borderRadius: BorderRadius.circular(12.0),
                         ),
                       ),
+                      child: const Text('Sign Up'),
                     ),
                     const SizedBox(height: 16.0),
                     Row(

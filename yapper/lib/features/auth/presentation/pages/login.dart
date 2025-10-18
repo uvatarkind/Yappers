@@ -3,11 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
-import '../pages/chat_history.dart';  // Navigate here on success
+import '../../../chat/presentation/pages/chat_history.dart';  // Navigate here on success
 import '../pages/signup.dart';   // Navigate here to sign up
 
 // Converted to StatefulWidget to manage controllers
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
@@ -142,7 +144,6 @@ class _LoginScreenState extends State<LoginScreen> {
                               );
                         }
                       },
-                      child: const Text('Login'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.purple[700],
                         padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -150,6 +151,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           borderRadius: BorderRadius.circular(12.0),
                         ),
                       ),
+                      child: const Text('Login'),
                     ),
                     const SizedBox(height: 16.0),
                     TextButton(
