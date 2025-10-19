@@ -1,0 +1,5 @@
+flutter_launcher_icons:
+  android: "launcher_icon" # Or true to generate for Android
+  ios: true
+  image_path: "assets/images/logo.jpg" # Path to your icon
+ 

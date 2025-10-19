@@ -18,12 +18,21 @@ class UserModel extends UserEntity {
           lastSeen: lastSeen,
         );
 
-  factory UserModel.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
+  factory UserModel.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc, String uid) {
     final data = doc.data() ?? {};
+
+    String? name;
+    final dynamic nameData = data['displayName'] ?? data['name'];
+    if (nameData is List && nameData.isNotEmpty) {
+      name = nameData.first as String?;
+    } else if (nameData is String) {
+      name = nameData;
+    }
+
     return UserModel(
       uid: doc.id,
       email: data['email'] as String? ?? '',
-      name: data['displayName'] as String? ?? data['name'] as String? ?? '',
+      name: name ?? '',
       photoUrl: data['photoUrl'] as String?,
       isOnline: data['isOnline'] as bool? ?? false,
       lastSeen: (data['lastSeen'] as Timestamp?)?.toDate(),

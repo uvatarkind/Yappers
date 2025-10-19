@@ -21,12 +21,10 @@ class ChatRepositoryImpl implements ChatRepository {
             models.map((model) => model.toEntity()).toList();
         return Right<Failure, List<Message>>(messageEntities);
       } catch (e) {
-        return Left<Failure, List<Message>>(
-            ServerFailure(message: e.toString()));
+        return Left<Failure, List<Message>>(ServerFailure(e.toString()));
       }
     }).handleError((error) {
-      return Left<Failure, List<Message>>(
-          ServerFailure(message: error.toString()));
+      return Left<Failure, List<Message>>(ServerFailure(error.toString()));
     });
   }
 
@@ -45,7 +43,7 @@ class ChatRepositoryImpl implements ChatRepository {
       await remoteDataSource.sendTextMessage(messageModel, chatId);
       return Right(null);
     } catch (e) {
-      return Left(ServerFailure(message: e.toString()));
+      return Left(ServerFailure(e.toString()));
     }
   }
 
@@ -64,7 +62,7 @@ class ChatRepositoryImpl implements ChatRepository {
       await remoteDataSource.sendFileMessage(messageModel, file, chatId);
       return Right(null);
     } catch (e) {
-      return Left(ServerFailure(message: e.toString()));
+      return Left(ServerFailure(e.toString()));
     }
   }
 
@@ -83,7 +81,18 @@ class ChatRepositoryImpl implements ChatRepository {
       await remoteDataSource.sendVoiceMessage(messageModel, voiceFile, chatId);
       return Right(null);
     } catch (e) {
-      return Left(ServerFailure(message: e.toString()));
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, String>> createOrGetChat(
+      String myUid, String otherUid) async {
+    try {
+      final chatId = await remoteDataSource.findOrCreateChat(myUid, otherUid);
+      return Right(chatId);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
     }
   }
 }

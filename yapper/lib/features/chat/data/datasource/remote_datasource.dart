@@ -14,4 +14,7 @@ abstract class RemoteDataSource {
 
   /// Sends a voice message (uploads audio file then adds message)
   Future<void> sendVoiceMessage(MessageModel message, File file, String chatId);
+
+  /// Finds an existing 1:1 chat between two users or creates it and returns the chatId
+  Future<String> findOrCreateChat(String myUid, String otherUid);
 }

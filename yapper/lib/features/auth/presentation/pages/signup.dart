@@ -4,6 +4,7 @@ import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 import '../../../chat/presentation/pages/chat_history.dart';
+import '../../../../core/widgets/loading_widget.dart';
 
 // 1. Converted to a StatefulWidget
 class SignupScreen extends StatefulWidget {
@@ -50,8 +51,8 @@ class _SignupScreenState extends State<SignupScreen> {
         },
         builder: (context, state) {
           if (state is AuthLoading) {
-            // Show a loading circle while the request is processing
-            return const Center(child: CircularProgressIndicator());
+            // Show the ink drop loading animation while the request is processing
+            return const YapperLoadingWidget();
           }
 
           return SafeArea(
@@ -121,8 +122,10 @@ class _SignupScreenState extends State<SignupScreen> {
                           borderRadius: BorderRadius.circular(12.0),
                         ),
                       ),
-                       validator: (value) {
-                        if (value == null || value.isEmpty || !value.contains('@')) {
+                      validator: (value) {
+                        if (value == null ||
+                            value.isEmpty ||
+                            !value.contains('@')) {
                           return 'Please enter a valid email';
                         }
                         return null;
@@ -144,8 +147,10 @@ class _SignupScreenState extends State<SignupScreen> {
                           borderRadius: BorderRadius.circular(12.0),
                         ),
                       ),
-                       validator: (value) {
-                        if (value == null || value.isEmpty || value.length < 6) {
+                      validator: (value) {
+                        if (value == null ||
+                            value.isEmpty ||
+                            value.length < 6) {
                           return 'Password must be at least 6 characters';
                         }
                         return null;
@@ -172,7 +177,7 @@ class _SignupScreenState extends State<SignupScreen> {
                           borderRadius: BorderRadius.circular(12.0),
                         ),
                       ),
-                      child: const Text('Sign Up'),
+                      child: const Text('Sign Up', style: TextStyle(color: Colors.white),),
                     ),
                     const SizedBox(height: 16.0),
                     Row(

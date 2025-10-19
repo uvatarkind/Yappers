@@ -3,8 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
-import '../../../chat/presentation/pages/chat_history.dart';  // Navigate here on success
-import '../pages/signup.dart';   // Navigate here to sign up
+import '../../../chat/presentation/pages/chat_history.dart'; // Navigate here on success
+import '../pages/signup.dart'; // Navigate here to sign up
+import '../../../../core/widgets/loading_widget.dart';
 
 // Converted to StatefulWidget to manage controllers
 class LoginScreen extends StatefulWidget {
@@ -52,10 +53,10 @@ class _LoginScreenState extends State<LoginScreen> {
         builder: (context, state) {
           // Builder rebuilds the UI when the state changes
           if (state is AuthLoading) {
-            // Show a loading indicator while authenticating
-            return const Center(child: CircularProgressIndicator());
+            // Show the ink drop loading animation while authenticating
+            return const YapperLoadingWidget();
           }
-          
+
           return SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(24.0),
@@ -102,7 +103,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       validator: (value) {
-                        if (value == null || value.isEmpty || !value.contains('@')) {
+                        if (value == null ||
+                            value.isEmpty ||
+                            !value.contains('@')) {
                           return 'Please enter a valid email';
                         }
                         return null;
@@ -124,8 +127,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           borderRadius: BorderRadius.circular(12.0),
                         ),
                       ),
-                       validator: (value) {
-                        if (value == null || value.isEmpty || value.length < 6) {
+                      validator: (value) {
+                        if (value == null ||
+                            value.isEmpty ||
+                            value.length < 6) {
                           return 'Password must be at least 6 characters';
                         }
                         return null;
@@ -151,7 +156,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           borderRadius: BorderRadius.circular(12.0),
                         ),
                       ),
-                      child: const Text('Login'),
+                      child: const Text('Login',
+                          style: TextStyle(color: Colors.white)),
                     ),
                     const SizedBox(height: 16.0),
                     TextButton(
@@ -172,7 +178,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             // 5. Added navigation to the Signup Screen
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => SignupScreen()),
+                              MaterialPageRoute(
+                                  builder: (context) => SignupScreen()),
                             );
                           },
                           child: Text(

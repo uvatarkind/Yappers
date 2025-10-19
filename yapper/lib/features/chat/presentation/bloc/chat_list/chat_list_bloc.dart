@@ -21,7 +21,8 @@ class ChatListBloc extends Bloc<ChatListEvent, ChatListState> {
     on<LoadChats>(_onLoadChats);
   }
 
-  void _onLoadChats(LoadChats event, Emitter<ChatListState> emit) {
+  Future<void> _onLoadChats(
+      LoadChats event, Emitter<ChatListState> emit) async {
     emit(const ChatListLoading());
     final user = _auth.currentUser;
     if (user == null) {
@@ -29,15 +30,19 @@ class ChatListBloc extends Bloc<ChatListEvent, ChatListState> {
       return;
     }
 
-    _subscription?.cancel();
+    // Cancel any previous subscription if it existed
+    await _subscription?.cancel();
 
-    _subscription = _firestore
+    final stream = _firestore
         .collection('chats')
         .where('participants', arrayContains: user.uid)
         .orderBy('updatedAt', descending: true)
         .snapshots()
-        .listen((snapshot) async {
+        .asyncMap<ChatListState>((snapshot) async {
       try {
+        if (snapshot.docs.isEmpty) {
+          return const ChatListLoaded([]);
+        }
         final items = await Future.wait(snapshot.docs.map((doc) async {
           final data = doc.data();
           final participants = List<String>.from(data['participants'] ?? []);
@@ -84,11 +89,18 @@ class ChatListBloc extends Bloc<ChatListEvent, ChatListState> {
           );
         }).toList());
 
-        emit(ChatListLoaded(items));
+        return ChatListLoaded(items);
       } catch (e) {
-        emit(ChatListError(e.toString()));
+        return ChatListError(e.toString());
       }
     });
+
+    // Use emit.forEach to ensure we don't emit after handler completes
+    await emit.forEach<ChatListState>(
+      stream,
+      onData: (state) => state,
+      onError: (error, stackTrace) => ChatListError(error.toString()),
+    );
   }
 
   @override

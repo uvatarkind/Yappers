@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:equatable/equatable.dart';
 import 'package:yapper/features/chat/domain/entities/message.dart';
+import 'package:yapper/features/chat/domain/entities/message_type.dart';
 
 abstract class ChatEvent extends Equatable {
   const ChatEvent();
@@ -24,5 +26,15 @@ class SendTextMessage extends ChatEvent {
 }
 
 class SendFileMessage extends ChatEvent {
-  // Can be an image, audio file, etc.
+  final File file;
+  final MessageType type; // image or file
+  final String? receiverId;
+  const SendFileMessage(
+      {required this.file, required this.type, this.receiverId});
+}
+
+class SendVoiceMessage extends ChatEvent {
+  final File audioFile;
+  final String? receiverId;
+  const SendVoiceMessage({required this.audioFile, this.receiverId});
 }
