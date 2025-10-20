@@ -75,9 +75,15 @@ class _ProfilePageState extends State<ProfilePage> {
                 duration: const Duration(milliseconds: 500),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [emotionColor, emotionColor.withOpacity(0.6)],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
+                    colors: [
+                      emotionColor,
+                      emotionColor.withOpacity(0.55),
+                      Colors.white.withOpacity(0.85),
+                      Colors.white,
+                    ],
+                    stops: const [0.0, 0.4, 0.7, 1.0],
                   ),
                 ),
                 child: _buildContent(context, state),
@@ -112,9 +118,20 @@ class _ProfilePageState extends State<ProfilePage> {
         SliverAppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          leading: IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () => Navigator.pop(context)),
+          leading: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 1.5),
+              ),
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                splashRadius: 24,
+                onPressed: () => Navigator.pop(context),
+              ),
+            ),
+          ),
           actions: [
             TextButton(
               onPressed: () async {
@@ -145,9 +162,17 @@ class _ProfilePageState extends State<ProfilePage> {
                   context.read<ProfileBloc>().add(const ToggleEdit(true));
                 }
               },
-              child: Text(
-                state.isEditing ? 'Save' : 'Edit Profile',
-                style: const TextStyle(color: Colors.white, fontSize: 16),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.white, width: 1.5),
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: Text(
+                  state.isEditing ? 'Save' : 'Edit Profile',
+                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                ),
               ),
             ),
           ],
@@ -156,8 +181,7 @@ class _ProfilePageState extends State<ProfilePage> {
           child: Column(
             children: [
               const SizedBox(height: 20),
-              Stack(
-                alignment: Alignment.bottomRight,
+              Column(
                 children: [
                   CircleAvatar(
                     radius: 60,
@@ -169,33 +193,39 @@ class _ProfilePageState extends State<ProfilePage> {
                         : null,
                   ),
                   if (state.isEditing)
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.photo_camera,
-                              color: Colors.white),
-                          onPressed: () async {
-                            final res = await FilePicker.platform
-                                .pickFiles(type: FileType.image);
-                            if (res != null && res.files.single.path != null) {
-                              final file = File(res.files.single.path!);
+                    Padding(
+                      padding: const EdgeInsets.all(0.0),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.photo_camera,
+                                color: Colors.white),
+                            onPressed: () async {
+                              final res = await FilePicker.platform
+                                  .pickFiles(type: FileType.image);
+                              if (res != null &&
+                                  res.files.single.path != null) {
+                                final file = File(res.files.single.path!);
+                                context
+                                    .read<ProfileBloc>()
+                                    .add(UploadProfileImage(file));
+                              }
+                            },
+                          ),
+                          const SizedBox(width: 20),
+                          IconButton(
+                            icon: const Icon(Icons.delete_forever,
+                                color: Colors.white),
+                            onPressed: () {
                               context
                                   .read<ProfileBloc>()
-                                  .add(UploadProfileImage(file));
-                            }
-                          },
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete_forever,
-                              color: Colors.white),
-                          onPressed: () {
-                            context
-                                .read<ProfileBloc>()
-                                .add(const RemoveProfileImage());
-                          },
-                        ),
-                      ],
+                                  .add(const RemoveProfileImage());
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                 ],
               ),
@@ -216,87 +246,235 @@ class _ProfilePageState extends State<ProfilePage> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 30),
             decoration: const BoxDecoration(
-              color: Colors.white,
+              color: Color(0xFFF9FAFB),
               borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
             ),
-            child: state.isEditing
-                ? _buildEditView(context, user)
-                : _buildReadView(user),
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 250),
+              switchInCurve: Curves.easeOut,
+              switchOutCurve: Curves.easeIn,
+              child: state.isEditing
+                  ? _buildEditView(context, user, state.emotionColor)
+                  : _buildReadView(user, state.emotionColor),
+            ),
           ),
         )
       ],
     );
   }
 
-  Widget _buildReadView(UserProfile user) {
+  InputDecoration _fieldDecoration(
+    BuildContext context, {
+    required String label,
+    required IconData icon,
+    String? helperText,
+    bool readOnly = false,
+    required Color accentColor,
+  }) {
+    final radius = BorderRadius.circular(16);
+    OutlineInputBorder outline(Color borderColor, [double width = 1]) =>
+        OutlineInputBorder(
+          borderRadius: radius,
+          borderSide: BorderSide(color: borderColor, width: width),
+        );
+
+    return InputDecoration(
+      labelText: label,
+      helperText: helperText,
+      labelStyle: TextStyle(color: Colors.grey.shade600),
+      floatingLabelStyle:
+          TextStyle(color: accentColor, fontWeight: FontWeight.w600),
+      prefixIcon: Icon(icon, color: Colors.grey.shade600),
+      filled: true,
+      fillColor: readOnly ? Colors.grey.shade100 : Colors.white,
+      border: outline(accentColor.withOpacity(0.2)),
+      enabledBorder: outline(accentColor.withOpacity(0.2)),
+      focusedBorder: outline(accentColor, 1.4),
+    );
+  }
+
+  Widget _buildReadView(UserProfile user, Color accentColor) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      key: const ValueKey('readView'),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text('BIO',
-            style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
-        Text(user.bio, style: const TextStyle(fontSize: 16)),
-        const SizedBox(height: 24),
-        const Text('CONTACT',
-            style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
-        Text(user.phoneNumber, style: const TextStyle(fontSize: 16)),
-        const SizedBox(height: 8),
-        Text(user.email, style: const TextStyle(fontSize: 16)),
+        _InfoCard(
+          title: 'About',
+          accentColor: accentColor,
+          children: [
+            _InfoRow(
+              icon: Icons.person_outline,
+              value: user.name,
+              label: 'Name',
+              accentColor: accentColor,
+            ),
+            if (user.bio.trim().isNotEmpty) ...[
+              const SizedBox(height: 12),
+              _InfoRow(
+                icon: Icons.notes_outlined,
+                value: user.bio,
+                label: 'Bio',
+                accentColor: accentColor,
+              ),
+            ],
+          ],
+        ),
+        const SizedBox(height: 20),
+        _InfoCard(
+          title: 'Contact',
+          accentColor: accentColor,
+          children: [
+            _InfoRow(
+              icon: Icons.phone,
+              value: user.phoneNumber,
+              label: 'Phone',
+              accentColor: accentColor,
+            ),
+            const SizedBox(height: 12),
+            _InfoRow(
+              icon: Icons.email_outlined,
+              value: user.email,
+              label: 'Email',
+              accentColor: accentColor,
+            ),
+          ],
+        ),
       ],
     );
   }
 
-  Widget _buildEditView(BuildContext context, UserProfile user) {
+  Widget _buildEditView(
+      BuildContext context, UserProfile user, Color accentColor) {
     const bioLimit = 160;
     return Column(
+      key: const ValueKey('editView'),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _InfoCard(
+          title: 'Profile Details',
+          accentColor: accentColor,
+          children: [
+            TextField(
+              controller: _nameController,
+              decoration: _fieldDecoration(
+                context,
+                label: 'Name',
+                icon: Icons.person_outline,
+                accentColor: accentColor,
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _emailController,
+              decoration: _fieldDecoration(
+                context,
+                label: 'Email',
+                icon: Icons.email_outlined,
+                readOnly: true,
+                accentColor: accentColor,
+              ),
+              keyboardType: TextInputType.emailAddress,
+              readOnly: true, // Email changes usually go through Auth flow
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _phoneController,
+              decoration: _fieldDecoration(
+                context,
+                label: 'Phone number',
+                icon: Icons.phone,
+                accentColor: accentColor,
+              ),
+              keyboardType: TextInputType.phone,
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _bioController,
+              maxLength: bioLimit,
+              maxLines: 3,
+              decoration: _fieldDecoration(
+                context,
+                label: 'Bio',
+                icon: Icons.notes_outlined,
+                helperText: 'Max 160 characters',
+                accentColor: accentColor,
+              ),
+              keyboardType: TextInputType.multiline,
+            ),
+          ],
+        ),
+        const SizedBox(height: 20),
+        _InfoCard(
+          title: 'Current Mood',
+          accentColor: accentColor,
+          children: [
+            DropdownButtonFormField<Emotion>(
+              value: _selectedEmotion ?? user.emotion,
+              items: Emotion.values
+                  .map((e) => DropdownMenuItem(
+                        value: e,
+                        child: Text(
+                          e.name[0].toUpperCase() + e.name.substring(1),
+                        ),
+                      ))
+                  .toList(),
+              onChanged: (val) {
+                setState(() => _selectedEmotion = val);
+              },
+              decoration: _fieldDecoration(
+                context,
+                label: 'Select emotion',
+                icon: Icons.mood,
+                accentColor: accentColor,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  final IconData icon;
+  final String value;
+  final String? label;
+  final Color? accentColor;
+  const _InfoRow({
+    required this.icon,
+    required this.value,
+    this.label,
+    this.accentColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('EDIT DETAILS',
-            style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 8),
-        TextField(
-          controller: _nameController,
-          decoration: const InputDecoration(labelText: 'Name'),
-        ),
-        const SizedBox(height: 8),
-        TextField(
-          controller: _emailController,
-          decoration: const InputDecoration(labelText: 'Email'),
-          keyboardType: TextInputType.emailAddress,
-          readOnly: true, // Email changes usually go through Auth flow
-        ),
-        const SizedBox(height: 8),
-        TextField(
-          controller: _phoneController,
-          decoration: const InputDecoration(labelText: 'Phone number'),
-          keyboardType: TextInputType.phone,
-        ),
-        const SizedBox(height: 8),
-        TextField(
-          controller: _bioController,
-          maxLength: bioLimit,
-          maxLines: 3,
-          decoration: const InputDecoration(
-            labelText: 'Bio',
-            helperText: 'Max 160 characters',
-          ),
-        ),
-        const SizedBox(height: 16),
-        const Text('EMOTION',
-            style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 8),
-        DropdownButtonFormField<Emotion>(
-          value: _selectedEmotion ?? user.emotion,
-          items: Emotion.values
-              .map((e) => DropdownMenuItem(
-                    value: e,
-                    child: Text(e.name[0].toUpperCase() + e.name.substring(1)),
-                  ))
-              .toList(),
-          onChanged: (val) {
-            setState(() => _selectedEmotion = val);
-          },
-          decoration: const InputDecoration(
-            labelText: 'Select emotion',
+        Icon(icon, color: Colors.grey.shade700),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (label != null)
+                Text(
+                  label!,
+                  style: TextStyle(
+                    color: accentColor ?? Colors.grey.shade600,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.3,
+                  ),
+                ),
+              if (label != null) const SizedBox(height: 4),
+              Text(
+                value,
+                style: const TextStyle(fontSize: 16),
+                softWrap: true,
+              ),
+            ],
           ),
         ),
       ],
@@ -323,6 +501,54 @@ class _InitialsCircle extends StatelessWidget {
           fontSize: 40,
           fontWeight: FontWeight.bold,
         ),
+      ),
+    );
+  }
+}
+
+class _InfoCard extends StatelessWidget {
+  final String title;
+  final List<Widget> children;
+  final Color accentColor;
+  const _InfoCard({
+    required this.title,
+    required this.children,
+    required this.accentColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 18,
+            offset: const Offset(0, 10),
+          ),
+        ],
+        border: Border.all(color: accentColor.withOpacity(0.35), width: 1.3),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title.toUpperCase(),
+            style: theme.textTheme.titleSmall?.copyWith(
+              letterSpacing: 1.1,
+              fontWeight: FontWeight.w700,
+              color: Colors.grey.shade600,
+            ),
+          ),
+          const SizedBox(height: 14),
+          ...children,
+        ],
       ),
     );
   }
