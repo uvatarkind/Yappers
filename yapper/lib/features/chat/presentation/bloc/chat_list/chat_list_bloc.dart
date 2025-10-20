@@ -59,8 +59,24 @@ class ChatListBloc extends Bloc<ChatListEvent, ChatListState> {
                 await _firestore.collection('users').doc(otherUserId).get();
             if (userDoc.exists) {
               final userData = userDoc.data() ?? {};
-              title = userData['displayName'] as String? ?? title;
-              photoUrl = userData['photoUrl'] as String?;
+              // Prefer displayName when available for chat title fallback
+              final displayNameRaw = userData['displayName'] as String?;
+              final displayName = displayNameRaw?.trim();
+              if (displayName != null && displayName.isNotEmpty) {
+                title = displayName;
+              } else {
+                final legacyName = (userData['name'] as String?)?.trim();
+                if (legacyName != null && legacyName.isNotEmpty) {
+                  title = legacyName;
+                }
+              }
+              // Support both legacy photoUrl and new profilePictureUrl fields
+              final profilePictureUrl =
+                  (userData['profilePictureUrl'] as String?)?.trim();
+              final legacyPhotoUrl = (userData['photoUrl'] as String?)?.trim();
+              photoUrl = profilePictureUrl?.isNotEmpty == true
+                  ? profilePictureUrl
+                  : legacyPhotoUrl;
               isOnline = userData['isOnline'] as bool? ?? false;
               final rawLastSeen = userData['lastSeen'];
               if (rawLastSeen is Timestamp) {
@@ -77,6 +93,15 @@ class ChatListBloc extends Bloc<ChatListEvent, ChatListState> {
             lastMessageTime = rawLastMessageTs.toDate();
           }
 
+          bool hasUnread = false;
+          final unreadByRaw = data['unreadBy'];
+          if (unreadByRaw is Map) {
+            final unreadValue = unreadByRaw[user.uid];
+            if (unreadValue is bool) {
+              hasUnread = unreadValue;
+            }
+          }
+
           return ChatListItem(
             chatId: doc.id,
             otherUserId: otherUserId,
@@ -86,6 +111,7 @@ class ChatListBloc extends Bloc<ChatListEvent, ChatListState> {
             lastSeen: lastSeen,
             lastMessageSnippet: lastMessageSnippet,
             lastMessageTime: lastMessageTime,
+            hasUnread: hasUnread,
           );
         }).toList());
 

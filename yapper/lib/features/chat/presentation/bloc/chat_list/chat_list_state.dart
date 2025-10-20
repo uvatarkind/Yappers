@@ -40,6 +40,7 @@ class ChatListItem extends Equatable {
   final DateTime? lastSeen;
   final String? lastMessageSnippet;
   final DateTime? lastMessageTime;
+  final bool hasUnread;
 
   const ChatListItem({
     required this.chatId,
@@ -50,6 +51,7 @@ class ChatListItem extends Equatable {
     this.lastSeen,
     this.lastMessageSnippet,
     this.lastMessageTime,
+    this.hasUnread = false,
   });
 
   @override
@@ -62,5 +64,6 @@ class ChatListItem extends Equatable {
         lastSeen,
         lastMessageSnippet,
         lastMessageTime,
+        hasUnread,
       ];
 }

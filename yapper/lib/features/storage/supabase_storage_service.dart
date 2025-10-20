@@ -28,7 +28,11 @@ class SupabaseStorageService {
       await _client.storage.from(bucket).uploadBinary(
             path,
             bytes,
-            fileOptions: FileOptions(contentType: contentType),
+            fileOptions: FileOptions(
+              contentType: contentType,
+              cacheControl: '0',
+              upsert: true,
+            ),
           );
       return path;
     } on StorageException catch (e) {

@@ -44,6 +44,8 @@ class SupabaseRemoteDataSource implements RemoteDataSource {
             'type': message.type.name,
           },
           'updatedAt': FieldValue.serverTimestamp(),
+          'unreadBy.${message.senderId}': false,
+          'unreadBy.${message.receiverId}': true,
         },
         SetOptions(merge: true));
     await batch.commit();
@@ -97,6 +99,8 @@ class SupabaseRemoteDataSource implements RemoteDataSource {
             'type': message.type.name,
           },
           'updatedAt': FieldValue.serverTimestamp(),
+          'unreadBy.${message.senderId}': false,
+          'unreadBy.${message.receiverId}': true,
         },
         SetOptions(merge: true));
     await batch.commit();
@@ -140,6 +144,8 @@ class SupabaseRemoteDataSource implements RemoteDataSource {
             'type': MessageType.audio.name,
           },
           'updatedAt': FieldValue.serverTimestamp(),
+          'unreadBy.${message.senderId}': false,
+          'unreadBy.${message.receiverId}': true,
         },
         SetOptions(merge: true));
     await batch.commit();
@@ -175,7 +181,19 @@ class SupabaseRemoteDataSource implements RemoteDataSource {
       'updatedAt': now,
       'lastMessage': null,
       'type': 'dm',
+      'unreadBy': {
+        myUid: false,
+        otherUid: false,
+      },
     });
     return newDoc.id;
+  }
+
+  @override
+  Future<void> markChatAsRead(String chatId, String userId) async {
+    final chatRef = _firestore.collection('chats').doc(chatId);
+    await chatRef.set({
+      'unreadBy.$userId': false,
+    }, SetOptions(merge: true));
   }
 }

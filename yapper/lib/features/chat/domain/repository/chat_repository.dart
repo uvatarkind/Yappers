@@ -12,4 +12,5 @@ abstract class ChatRepository {
       Message message, File file, String chatId);
   Future<Either<Failure, String>> createOrGetChat(
       String myUid, String otherUid);
+  Future<Either<Failure, void>> markChatAsRead(String chatId, String userId);
 }

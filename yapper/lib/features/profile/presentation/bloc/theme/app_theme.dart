@@ -6,7 +6,7 @@ class AppTheme {
     switch (emotion) {
       case Emotion.happy:
         return ThemeData(
-            primarySwatch: Colors.yellow, brightness: Brightness.light);
+            primarySwatch: Colors.amber, brightness: Brightness.light);
       case Emotion.sad:
         return ThemeData(
             primarySwatch: Colors.blue, brightness: Brightness.dark);

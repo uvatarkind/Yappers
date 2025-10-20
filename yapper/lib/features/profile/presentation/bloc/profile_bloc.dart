@@ -96,15 +96,15 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
 
     final Either<Failure, void> failureOrSuccess =
         await updateUserProfile(updatedUser);
-  failureOrSuccess.fold(
-    (failure) => emit(state.copyWith(
-      status: ProfileStatus.error,
-      errorMessage: 'Failed to update profile')),
-    (_) => emit(state.copyWith(
-      status: ProfileStatus.loaded,
-      userProfile: updatedUser,
-      isEditing: false)),
-  );
+    failureOrSuccess.fold(
+      (failure) => emit(state.copyWith(
+          status: ProfileStatus.error,
+          errorMessage: 'Failed to update profile')),
+      (_) => emit(state.copyWith(
+          status: ProfileStatus.loaded,
+          userProfile: updatedUser,
+          isEditing: false)),
+    );
   }
 
   Future<void> _onUploadProfileImage(
@@ -113,10 +113,14 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     final uid = state.userProfile!.uid;
     final Either<Failure, String> failureOrUrl =
         await uploadProfilePicture.call(event.image, uid);
-    failureOrUrl.fold(
-      (failure) => emit(state.copyWith(
-          status: ProfileStatus.error, errorMessage: 'Failed to upload image')),
+    await failureOrUrl.fold(
+      (failure) async {
+        emit(state.copyWith(
+            status: ProfileStatus.error,
+            errorMessage: 'Failed to upload image'));
+      },
       (url) async {
+        final refreshedUrl = '$url?t=${DateTime.now().millisecondsSinceEpoch}';
         final currentUser = state.userProfile!;
         final updatedUser = UserProfile(
           uid: currentUser.uid,
@@ -124,14 +128,20 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
           bio: currentUser.bio,
           phoneNumber: currentUser.phoneNumber,
           email: currentUser.email,
-          profilePictureUrl: url,
+          profilePictureUrl: refreshedUrl,
           emotion: currentUser.emotion,
         );
-        await updateUserProfile(updatedUser);
-        emit(state.copyWith(
-            status: ProfileStatus.loaded,
-            userProfile: updatedUser,
-            isEditing: false));
+
+        final updateResult = await updateUserProfile(updatedUser);
+        updateResult.fold(
+          (_) => emit(state.copyWith(
+              status: ProfileStatus.error,
+              errorMessage: 'Failed to save profile image')),
+          (_) => emit(state.copyWith(
+              status: ProfileStatus.loaded,
+              userProfile: updatedUser,
+              isEditing: false)),
+        );
       },
     );
   }
@@ -156,8 +166,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     final res = await updateUserProfile(updatedUser);
     res.fold(
       (_) => emit(state.copyWith(
-          status: ProfileStatus.error,
-          errorMessage: 'Failed to remove image')),
+          status: ProfileStatus.error, errorMessage: 'Failed to remove image')),
       (_) => emit(state.copyWith(
           status: ProfileStatus.loaded,
           userProfile: updatedUser,

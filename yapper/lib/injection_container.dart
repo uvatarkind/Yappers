@@ -29,6 +29,7 @@ import 'features/chat/domain/usecases/send_text_message.dart';
 import 'features/chat/domain/usecases/send_file_message.dart';
 import 'features/chat/domain/usecases/send_voice_message.dart';
 import 'features/chat/domain/usecases/create_or_get_chat.dart';
+import 'features/chat/domain/usecases/mark_chat_as_read.dart';
 import 'features/chat/presentation/bloc/chat/chat_bloc.dart';
 import 'features/chat/presentation/bloc/chat_list/chat_list_bloc.dart';
 import 'features/chat/data/datasource/user_remote_data_source.dart';
@@ -78,6 +79,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => SendFileMessageUseCase(sl()));
   sl.registerLazySingleton(() => SendVoiceMessageUseCase(sl()));
   sl.registerLazySingleton(() => CreateOrGetChatUseCase(sl()));
+  sl.registerLazySingleton(() => MarkChatAsReadUseCase(sl()));
   sl.registerLazySingleton<ChatRepository>(
       () => ChatRepositoryImpl(remoteDataSource: sl()));
   sl.registerLazySingleton<RemoteDataSource>(

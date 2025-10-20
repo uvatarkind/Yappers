@@ -57,139 +57,134 @@ class _LoginScreenState extends State<LoginScreen> {
             return const YapperLoadingWidget();
           }
 
-          return SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              // 3. Wrapped input fields in a Form for validation
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[
-                    Text(
-                      'Welcome Back!',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 32.0,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.purple[800],
-                      ),
-                    ),
-                    const SizedBox(height: 8.0),
-                    Text(
-                      'Login to your account',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 16.0,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                    const SizedBox(height: 48.0),
-                    // Replaced TextField with TextFormField for validation
-                    TextFormField(
-                      controller: _emailController, // Linked controller
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: InputDecoration(
-                        labelText: 'Email',
-                        labelStyle: TextStyle(color: Colors.purple[800]),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.purple[100]!),
-                          borderRadius: BorderRadius.circular(12.0),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.purple[800]!),
-                          borderRadius: BorderRadius.circular(12.0),
+          return SingleChildScrollView(
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                // 3. Wrapped input fields in a Form for validation
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      SizedBox(height: 100.0),
+                      Text(
+                        'Welcome Back!',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 32.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.purple[800],
                         ),
                       ),
-                      validator: (value) {
-                        if (value == null ||
-                            value.isEmpty ||
-                            !value.contains('@')) {
-                          return 'Please enter a valid email';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16.0),
-                    TextFormField(
-                      controller: _passwordController, // Linked controller
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        labelText: 'Password',
-                        labelStyle: TextStyle(color: Colors.purple[800]),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.purple[100]!),
-                          borderRadius: BorderRadius.circular(12.0),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.purple[800]!),
-                          borderRadius: BorderRadius.circular(12.0),
+                      const SizedBox(height: 8.0),
+                      Text(
+                        'Login to your account',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          color: Colors.grey[600],
                         ),
                       ),
-                      validator: (value) {
-                        if (value == null ||
-                            value.isEmpty ||
-                            value.length < 6) {
-                          return 'Password must be at least 6 characters';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 24.0),
-                    ElevatedButton(
-                      onPressed: () {
-                        // 4. Dispatch event on button press
-                        if (_formKey.currentState!.validate()) {
-                          context.read<AuthBloc>().add(
-                                SignInRequested(
-                                  _emailController.text.trim(),
-                                  _passwordController.text.trim(),
-                                ),
-                              );
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.purple[700],
-                        padding: const EdgeInsets.symmetric(vertical: 16.0),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12.0),
-                        ),
-                      ),
-                      child: const Text('Login',
-                          style: TextStyle(color: Colors.white)),
-                    ),
-                    const SizedBox(height: 16.0),
-                    TextButton(
-                      onPressed: () {
-                        // TODO: Implement forgot password functionality
-                      },
-                      child: Text(
-                        'Forgot Password?',
-                        style: TextStyle(color: Colors.purple[700]),
-                      ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text("Don't have an account?"),
-                        TextButton(
-                          onPressed: () {
-                            // 5. Added navigation to the Signup Screen
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => SignupScreen()),
-                            );
-                          },
-                          child: Text(
-                            'Sign Up',
-                            style: TextStyle(color: Colors.purple[700]),
+                      const SizedBox(height: 48.0),
+                      // Replaced TextField with TextFormField for validation
+                      TextFormField(
+                        controller: _emailController, // Linked controller
+                        keyboardType: TextInputType.emailAddress,
+                        decoration: InputDecoration(
+                          labelText: 'Email',
+                          labelStyle: TextStyle(color: Colors.purple[800]),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.purple[100]!),
+                            borderRadius: BorderRadius.circular(12.0),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.purple[800]!),
+                            borderRadius: BorderRadius.circular(12.0),
                           ),
                         ),
-                      ],
-                    ),
-                  ],
+                        validator: (value) {
+                          if (value == null ||
+                              value.isEmpty ||
+                              !value.contains('@')) {
+                            return 'Please enter a valid email';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16.0),
+                      TextFormField(
+                        controller: _passwordController, // Linked controller
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          labelText: 'Password',
+                          labelStyle: TextStyle(color: Colors.purple[800]),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.purple[100]!),
+                            borderRadius: BorderRadius.circular(12.0),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.purple[800]!),
+                            borderRadius: BorderRadius.circular(12.0),
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null ||
+                              value.isEmpty ||
+                              value.length < 6) {
+                            return 'Password must be at least 6 characters';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 24.0),
+                      ElevatedButton(
+                        onPressed: () {
+                          // 4. Dispatch event on button press
+                          if (_formKey.currentState!.validate()) {
+                            context.read<AuthBloc>().add(
+                                  SignInRequested(
+                                    _emailController.text.trim(),
+                                    _passwordController.text.trim(),
+                                  ),
+                                );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.purple[700],
+                          padding: const EdgeInsets.symmetric(vertical: 16.0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12.0),
+                          ),
+                        ),
+                        child: const Text('Login',
+                            style: TextStyle(color: Colors.white)),
+                      ),
+                      const SizedBox(height: 16.0),
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text("Don't have an account?"),
+                          TextButton(
+                            onPressed: () {
+                              // 5. Added navigation to the Signup Screen
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => SignupScreen()),
+                              );
+                            },
+                            child: Text(
+                              'Sign Up',
+                              style: TextStyle(color: Colors.purple[700]),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

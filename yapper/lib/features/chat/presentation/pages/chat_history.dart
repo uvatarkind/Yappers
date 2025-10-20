@@ -15,6 +15,7 @@ import 'package:yapper/features/auth/presentation/bloc/auth_state.dart';
 import 'package:yapper/features/auth/presentation/pages/login.dart';
 import 'package:yapper/features/chat/presentation/bloc/recent_users/recent_users_bloc.dart';
 import 'package:yapper/features/chat/domain/usecases/create_or_get_chat.dart';
+import 'package:yapper/features/chat/domain/usecases/mark_chat_as_read.dart';
 import 'package:yapper/features/profile/presentation/pages/setting.dart';
 
 class ChatListScreen extends StatelessWidget {
@@ -177,7 +178,10 @@ class _RecentYappers extends StatelessWidget {
               );
             }
             if (state is RecentUsersLoaded) {
-              final users = state.users;
+              final myUid = FirebaseAuth.instance.currentUser?.uid;
+              final users = state.users
+                  .where((u) => myUid == null || u.uid != myUid)
+                  .toList();
               if (users.isEmpty) {
                 return const Center(
                   child: Text(
@@ -330,7 +334,7 @@ class _ChatListSection extends StatelessWidget {
                         ? _formatTime(context, chat.lastMessageTime!)
                         : '',
                     imageUrl: chat.photoUrl,
-                    hasUnread: false, // TODO: wire unread status when available
+                    hasUnread: chat.hasUnread,
                     isOnline: chat.isOnline,
                     lastSeen: chat.lastSeen,
                   );
@@ -525,8 +529,23 @@ class ChatItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {
-        Navigator.of(context).push(
+      onTap: () async {
+        final currentUser = FirebaseAuth.instance.currentUser;
+        if (currentUser != null) {
+          final result = await di.sl<MarkChatAsReadUseCase>()(
+            chatId: chatId,
+            userId: currentUser.uid,
+          );
+          result.fold(
+            (failure) => ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                  content: Text('Failed to mark as read: ${failure.message}')),
+            ),
+            (_) {},
+          );
+        }
+
+        await Navigator.of(context).push(
           MaterialPageRoute(
             builder: (_) => BlocProvider<ChatBloc>(
               create: (_) => di.sl<ChatBloc>(),

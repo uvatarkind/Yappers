@@ -17,4 +17,7 @@ abstract class RemoteDataSource {
 
   /// Finds an existing 1:1 chat between two users or creates it and returns the chatId
   Future<String> findOrCreateChat(String myUid, String otherUid);
+
+  /// Marks all messages as read for the given user in the chat
+  Future<void> markChatAsRead(String chatId, String userId);
 }

@@ -21,7 +21,7 @@ class ProfileState extends Equatable {
     if (userProfile == null) return Colors.grey;
     switch (userProfile!.emotion) {
       case Emotion.happy:
-        return Colors.yellow;
+        return const Color(0xFFFBC02D); // deeper amber for happy
       case Emotion.sad:
         return Colors.blue;
       case Emotion.angry:

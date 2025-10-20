@@ -95,4 +95,15 @@ class ChatRepositoryImpl implements ChatRepository {
       return Left(ServerFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> markChatAsRead(
+      String chatId, String userId) async {
+    try {
+      await remoteDataSource.markChatAsRead(chatId, userId);
+      return Right(null);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
 }

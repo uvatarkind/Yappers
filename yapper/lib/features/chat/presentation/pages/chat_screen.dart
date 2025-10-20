@@ -1247,7 +1247,7 @@ class _VoiceMessageState extends State<_VoiceMessage> {
           ),
         ),
         Text(
-          '${_fmt(_pos)} / ${_fmt(_dur)}',
+          '${_fmt(_pos)}',
           style: TextStyle(color: textColor.withOpacity(0.9), fontSize: 12),
         )
       ],
